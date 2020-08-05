@@ -1,12 +1,15 @@
 package com.riz.thegreatmovieapp.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.riz.thegreatmovieapp.R
@@ -19,8 +22,6 @@ class MainFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private lateinit var imageBaseUrl: String
-    private lateinit var imageSize: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,13 +40,14 @@ class MainFragment : Fragment() {
                 })
         })
 
-
+        model.getMoviesGenre(apiKey)
 
 
         return view
     }
 
-    private fun initRCAdapter(view: View, popularMoviesList: List<Result>, baseUrl:String, imageSize:String
+    private fun initRCAdapter(
+        view: View, popularMoviesList: List<Result>, baseUrl: String, imageSize: String
     ) {
         viewManager = LinearLayoutManager(context)
         viewAdapter = MovieMainScreenRCAdapter(popularMoviesList, baseUrl, imageSize)
@@ -54,6 +56,30 @@ class MainFragment : Fragment() {
             layoutManager = viewManager
             adapter = viewAdapter
         }
+        (viewAdapter as MovieMainScreenRCAdapter).getClickedPosition()
+            .observe(viewLifecycleOwner, Observer<Int> { position: Int ->
+
+                val url = baseUrl + imageSize + popularMoviesList[position].poster_path
+                val imageUrl = url.replace("http", "https")
+                val genreList = popularMoviesList[position].genre_ids
+                var genreNameList: MutableList<String> = ArrayList()
+                model.genreMutableLiveData.observe(
+                    viewLifecycleOwner,
+                    Observer<HashMap<Int, String>> {
+                        for (genre in genreList) {
+                            Log.d("Genre", "" + genre)
+                            it[genre]?.let { genres -> genreNameList.add(genres) }
+                        }
+                    })
+
+                val bundle = bundleOf(
+                    "imageUrl" to imageUrl,
+                    "overView" to popularMoviesList[position].overview,
+                    "movieTitle" to popularMoviesList[position].title,
+                    "genre" to genreNameList
+                )
+                view.findNavController().navigate(R.id.movie_details_action, bundle)
+            })
     }
 
 

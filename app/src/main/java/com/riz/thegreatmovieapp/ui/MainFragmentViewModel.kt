@@ -1,104 +1,53 @@
 package com.riz.thegreatmovieapp.ui
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.riz.thegreatmovieapp.model.*
 import com.riz.thegreatmovieapp.network.MovieApiInterface
 import com.riz.thegreatmovieapp.network.MovieApiService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class MainFragmentViewModel : ViewModel() {
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+
+class MainFragmentViewModel(application: Application) : AndroidViewModel(application) {
+    val apiKey: String = application.getString(com.riz.thegreatmovieapp.R.string.api_key)
+
     var apiService: MovieApiInterface = MovieApiService.movieApi()
     var mutableLiveDataImages = MutableLiveData<Images>()
     var popularMoviesMutableLiveDataList = MutableLiveData<List<Result>>()
     var genreMutableLiveData = MutableLiveData<HashMap<Int, String>>()
-    fun getMovieConfig(apiKey: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val call: Call<MovieConfigApi> = apiService.getMovieConfig(apiKey);
-            call.enqueue(object : Callback<MovieConfigApi> {
-                override fun onResponse(
-                    call: Call<MovieConfigApi>,
-                    response: Response<MovieConfigApi>
-                ) {
-                    if (response.isSuccessful) {
-                        mutableLiveDataImages.postValue(response.body()!!.images)
-                    }
-                }
-
-                override fun onFailure(
-                    call: Call<MovieConfigApi>,
-                    t: Throwable
-                ) {
-                    t.printStackTrace()
-                }
-            })
+    fun getMovieConfig() {
+        viewModelScope.launch {
+          val  movieConfigApi= async { apiService.getMovieConfig(apiKey) }
+            mutableLiveDataImages.postValue(movieConfigApi.await().images)
 
         }
     }
 
-    fun getPopularMovies(apiKey: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+    fun getPopularMovies() {
+     viewModelScope.launch {
 
-            val call: Call<PopularMovies> = apiService.getPopularMovies(apiKey);
-            call.enqueue(object : Callback<PopularMovies> {
-                override fun onResponse(
-                    call: Call<PopularMovies>,
-                    response: Response<PopularMovies>
-                ) {
-                    if (response.isSuccessful) {
-                        Log.d("Genre", response.body()!!.results[0].overview)
-                        popularMoviesMutableLiveDataList.postValue(response.body()!!.results)
-                    }
-                }
-
-
-                override fun onFailure(
-                    call: Call<PopularMovies>,
-                    t: Throwable
-                ) {
-                    t.printStackTrace()
-                }
-            })
-
+          val popularMovies =async { apiService.getPopularMovies(apiKey)}
+         popularMoviesMutableLiveDataList.postValue(popularMovies.await().results)
         }
     }
 
-    fun getMoviesGenre(apiKey: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val call: Call<MovieGenreList> = apiService.getMoviesGenreList(apiKey);
-            call.enqueue(object : Callback<MovieGenreList> {
-                override fun onResponse(
-                    call: Call<MovieGenreList>,
-                    response: Response<MovieGenreList>
-                ) {
-                    if (response.isSuccessful) {
-                        val genreList: List<Genre> = response.body()!!.genres
-                        val genreHashMap: HashMap<Int, String> = HashMap()
+    fun getMoviesGenre() {
+        viewModelScope.launch {
+            async {
 
-                        for (genre in genreList) {
-                            Log.d("Geattt", "" + genre)
-                            genreHashMap[genre.id] = genre.name
-                        }
-                        genreMutableLiveData.postValue(genreHashMap)
-                    }
-                }
+            }
+            val genres = apiService.getMoviesGenreList(apiKey)
+            val genreList: List<Genre> = genres.genres
+            val genreHashMap: HashMap<Int, String> = HashMap()
 
+            for (genre in genreList) {
+                Log.d("Geattt", "" + genre)
+                genreHashMap[genre.id] = genre.name
+            }
 
-                override fun onFailure(
-                    call: Call<MovieGenreList>,
-                    t: Throwable
-                ) {
-                    t.printStackTrace()
-                }
-            })
-
+            genreMutableLiveData.postValue(genreHashMap)
         }
     }
 
@@ -112,4 +61,5 @@ class MainFragmentViewModel : ViewModel() {
     fun getGenreLiveData():LiveData<HashMap<Int, String>>{
         return genreMutableLiveData
     }
+
 }

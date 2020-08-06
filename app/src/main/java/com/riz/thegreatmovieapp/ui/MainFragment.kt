@@ -29,18 +29,18 @@ class MainFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_main, container, false)
         model = ViewModelProvider(this).get(MainFragmentViewModel::class.java)
-        val apiKey: String = getString(R.string.api_key)
-        model.getMovieConfig(apiKey)
+
+        model.getMovieConfig()
         model.getLiveDataImages().observe(viewLifecycleOwner, Observer<Images> { images: Images ->
 
-            model.getPopularMovies(apiKey)
+            model.getPopularMovies()
             model.getLiveDataPopularMovies()
                 .observe(viewLifecycleOwner, Observer<List<Result>> { result: List<Result> ->
                     initRCAdapter(view, result, images.base_url, images.poster_sizes[3])
                 })
         })
 
-        model.getMoviesGenre(apiKey)
+        model.getMoviesGenre()
 
 
         return view
@@ -62,8 +62,8 @@ class MainFragment : Fragment() {
                 val url = baseUrl + imageSize + popularMoviesList[position].poster_path
                 val imageUrl = url.replace("http", "https")
                 val genreList = popularMoviesList[position].genre_ids
-                var genreNameList: MutableList<String> = ArrayList()
-                model.genreMutableLiveData.observe(
+                val genreNameList: MutableList<String> = ArrayList()
+                model.getGenreLiveData().observe(
                     viewLifecycleOwner,
                     Observer<HashMap<Int, String>> {
                         for (genre in genreList) {

@@ -10,11 +10,11 @@ import retrofit2.http.Query
 
 interface MovieApiInterface {
     @GET("/3/configuration")
-    fun getMovieConfig(@Query("api_key") key: String): Call<MovieConfigApi>
+   suspend fun getMovieConfig(@Query("api_key") key: String): MovieConfigApi
 
     @GET("/3/movie/popular")
-    fun getPopularMovies(@Query("api_key") key: String): Call<PopularMovies>
+  suspend  fun getPopularMovies(@Query("api_key") key: String): PopularMovies
 
     @GET("/3/genre/movie/list")
-    fun getMoviesGenreList(@Query("api_key") key: String): Call<MovieGenreList>
+   suspend fun getMoviesGenreList(@Query("api_key") key: String): MovieGenreList
 }

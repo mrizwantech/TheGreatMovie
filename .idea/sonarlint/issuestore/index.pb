@@ -17,3 +17,13 @@ P
  app/src/main/AndroidManifest.xml,8/c/8c55c3ccc257e5907959013f99656e4c8ec3903e
 v
 Fapp/src/main/java/com/riz/thegreatmovieapp/ui/MainFragmentViewModel.kt,6/9/69e5f0693362328e2ad9fee6b1913c89cd836224
+i
+9app/src/main/java/com/riz/thegreatmovieapp/model/Genre.kt,8/d/8d239828c87c8578abad6808b2d3b57c5aedc981
+r
+Bapp/src/main/java/com/riz/thegreatmovieapp/model/MovieGenreList.kt,4/4/44a39c148a8ea70d552011bc6c5fb5afad443cf0
+{
+Kapp/src/main/java/com/riz/thegreatmovieapp/util/MovieMainScreenRCAdapter.kt,d/2/d2640cfe0b1d443e70fe40a74111cc993eecf3bf
+j
+:app/src/main/java/com/riz/thegreatmovieapp/model/Result.kt,3/4/343e976386c5fbb9040148757c71cfc99d0e1c2f
+u
+Eapp/src/main/java/com/riz/thegreatmovieapp/ui/MovieDetailsFragment.kt,f/e/fefec545fa4792519c7acce9bc446b0b9ee2d6cf

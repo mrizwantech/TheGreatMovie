@@ -11,7 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class MainFragmentViewModel(application: Application) : AndroidViewModel(application) {
-    val apiKey: String = application.getString(com.riz.thegreatmovieapp.R.string.api_key)
+  private  val apiKey: String = application.getString(com.riz.thegreatmovieapp.R.string.api_key)
 
     var apiService: MovieApiInterface = MovieApiService.movieApi()
     var mutableLiveDataImages = MutableLiveData<Images>()
@@ -35,11 +35,11 @@ class MainFragmentViewModel(application: Application) : AndroidViewModel(applica
 
     fun getMoviesGenre() {
         viewModelScope.launch {
-            async {
 
-            }
-            val genres = apiService.getMoviesGenreList(apiKey)
-            val genreList: List<Genre> = genres.genres
+
+
+            val genres = async { apiService.getMoviesGenreList(apiKey)}
+            val genreList: List<Genre> = genres.await().genres
             val genreHashMap: HashMap<Int, String> = HashMap()
 
             for (genre in genreList) {
